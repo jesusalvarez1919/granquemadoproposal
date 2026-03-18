@@ -1,0 +1,373 @@
+{
+  "gpc_service": {
+    "metadata": {
+      "id": "IMSS-GPC-375-GRAN-QUEMADO",
+      "version": "2.1.0",
+      "title": "Intervenciones para la Atención del Adulto Gran Quemado en el Tercer Nivel de Atención",
+      "catalogo_maestro": "IMSS-375-17",
+      "institucion": "Instituto Mexicano del Seguro Social (IMSS)",
+      "nivel_atencion": "Tercer nivel",
+      "cie10": ["T31", "T27"],
+      "fecha_publicacion": "2017-03-09",
+      "fecha_formalizacion_json": "2025-03-01",
+      "estado": "activo",
+      "base_url": "/api/v1/gpc/gran-quemado"
+    },
+
+    "endpoints": {
+
+      "clasificacion": {
+        "method": "POST",
+        "path": "/api/v1/gpc/gran-quemado/clasificacion",
+        "descripcion": "Clasifica la quemadura según profundidad y extensión usando criterios de la GPC IMSS-375",
+        "request": {
+          "paciente_id": "string",
+          "edad_anios": "integer",
+          "peso_kg": "number",
+          "mecanismo": {
+            "type": "string",
+            "enum": ["termico", "electrico_alta_tension", "electrico_baja_tension", "quimico", "por_inhalacion", "radiacion"]
+          },
+          "localizacion_quemaduras": ["string"],
+          "profundidad_evaluada": {
+            "type": "string",
+            "enum": ["primer_grado", "segundo_grado_superficial", "segundo_grado_profundo", "tercer_grado", "cuarto_grado"]
+          },
+          "scq_porcentaje": "number",
+          "lesion_inhalacion": "boolean",
+          "trauma_asociado": "boolean",
+          "edad_extrema": "boolean"
+        },
+        "response": {
+          "clasificacion_benaim": {
+            "tipo": "string",
+            "descripcion": "string"
+          },
+          "criterios_gran_quemado": "boolean",
+          "criterios_cumplidos": ["string"],
+          "nivel_gravedad": {
+            "type": "string",
+            "enum": ["leve", "moderado", "grave", "critico"]
+          },
+          "requiere_uci": "boolean",
+          "score_pronostico": {
+            "baux_score": "number",
+            "mortalidad_estimada_porcentaje": "number"
+          },
+          "recomendacion_gpc": "string",
+          "evidencia_nivel": "string"
+        }
+      },
+
+      "evaluacion_inicial": {
+        "method": "POST",
+        "path": "/api/v1/gpc/gran-quemado/evaluacion-inicial",
+        "descripcion": "Genera checklist de evaluación ABCDE y primeras intervenciones según GPC",
+        "request": {
+          "paciente_id": "string",
+          "glasgow": "integer",
+          "via_aerea_permeable": "boolean",
+          "saturacion_o2": "number",
+          "fc_lpm": "integer",
+          "ta_sistolica": "integer",
+          "cilios_chamuscados": "boolean",
+          "ronquera": "boolean",
+          "esputo_carbonaceo": "boolean",
+          "quemaduras_circunferenciales": "boolean"
+        },
+        "response": {
+          "abcde": {
+            "A_via_aerea": {
+              "estado": "string",
+              "intervencion_recomendada": "string",
+              "urgente": "boolean"
+            },
+            "B_respiracion": {
+              "estado": "string",
+              "intervencion_recomendada": "string",
+              "urgente": "boolean"
+            },
+            "C_circulacion": {
+              "estado": "string",
+              "intervencion_recomendada": "string",
+              "urgente": "boolean"
+            },
+            "D_neurologico": {
+              "estado": "string",
+              "intervencion_recomendada": "string"
+            },
+            "E_exposicion": {
+              "estado": "string",
+              "intervencion_recomendada": "string"
+            }
+          },
+          "sospecha_lesion_inhalacion": "boolean",
+          "criterios_intubacion_inmediata": "boolean",
+          "alertas_criticas": ["string"]
+        }
+      },
+
+      "resucitacion_hidrica": {
+        "method": "POST",
+        "path": "/api/v1/gpc/gran-quemado/resucitacion-hidrica",
+        "descripcion": "Calcula volumen de resucitación con Fórmula de Parkland según GPC IMSS-375",
+        "request": {
+          "paciente_id": "string",
+          "peso_kg": "number",
+          "scq_porcentaje": "number",
+          "hora_accidente_iso": "string",
+          "hora_inicio_resucitacion_iso": "string",
+          "tipo_solucion": {
+            "type": "string",
+            "enum": ["hartmann", "solucion_salina_09", "plasma_fresco_congelado"],
+            "default": "hartmann"
+          }
+        },
+        "response": {
+          "formula_utilizada": "Parkland: 3-4 ml × kg × %SCQ",
+          "volumen_total_24h_ml": "number",
+          "primera_mitad": {
+            "volumen_ml": "number",
+            "duracion_horas": 8,
+            "descripcion": "Primera mitad desde momento del accidente",
+            "velocidad_ml_hora": "number"
+          },
+          "segunda_mitad": {
+            "volumen_ml": "number",
+            "duracion_horas": 16,
+            "velocidad_ml_hora": "number"
+          },
+          "horas_transcurridas_accidente": "number",
+          "ajuste_retraso_aplicado": "boolean",
+          "meta_diuresis_ml_hora": {
+            "minimo": 30,
+            "maximo": 50,
+            "unidad": "ml/hora"
+          },
+          "advertencias": ["string"],
+          "evidencia_nivel": "Ia",
+          "recomendacion_gpc": "Fórmula de Parkland 3-4ml/kg/%SCQ. Ajustar según balance hídrico y monitoreo hemodinámico."
+        }
+      },
+
+      "manejo_dolor": {
+        "method": "POST",
+        "path": "/api/v1/gpc/gran-quemado/manejo-dolor",
+        "descripcion": "Protocolo de analgesia y sedación para el gran quemado según GPC",
+        "request": {
+          "paciente_id": "string",
+          "peso_kg": "number",
+          "eva_dolor": "integer",
+          "ventilado_mecanicamente": "boolean",
+          "funcion_renal_normal": "boolean",
+          "tipo_procedimiento": {
+            "type": "string",
+            "enum": ["reposo", "curacion", "escarotomia", "cirugia"]
+          }
+        },
+        "response": {
+          "esquema_analgesia": {
+            "primer_linea": {
+              "farmaco": "string",
+              "dosis": "string",
+              "via": "string",
+              "frecuencia": "string"
+            },
+            "rescate": {
+              "farmaco": "string",
+              "dosis": "string",
+              "via": "string"
+            },
+            "sedacion_procedimiento": {
+              "farmaco": "string",
+              "dosis": "string",
+              "consideraciones": "string"
+            }
+          },
+          "meta_eva": "menor_o_igual_3",
+          "monitoreo_recomendado": ["string"],
+          "contraindicaciones_detectadas": ["string"],
+          "recomendacion_gpc": "string"
+        }
+      },
+
+      "prevencion_infeccion": {
+        "method": "POST",
+        "path": "/api/v1/gpc/gran-quemado/prevencion-infeccion",
+        "descripcion": "Recomendaciones de manejo de herida y profilaxis según GPC IMSS-375",
+        "request": {
+          "paciente_id": "string",
+          "dias_postquemadura": "integer",
+          "profundidad": "string",
+          "scq_porcentaje": "number",
+          "signos_infeccion": "boolean",
+          "cultivo_disponible": "boolean",
+          "resultado_cultivo": "string | null"
+        },
+        "response": {
+          "antiseptico_topico_recomendado": {
+            "farmaco": "string",
+            "frecuencia_curacion": "string",
+            "tipo_aposito": "string"
+          },
+          "profilaxis_antibiotica_sistemica": {
+            "indicada": "boolean",
+            "justificacion": "string",
+            "esquema": "string | null"
+          },
+          "protocolo_curacion": {
+            "frecuencia": "string",
+            "tecnica": "string",
+            "manejo_flictenas": "string"
+          },
+          "criterios_derivacion_quirurgica": "boolean",
+          "recomendacion_gpc": "string",
+          "evidencia_nivel": "string"
+        }
+      },
+
+      "soporte_nutricional": {
+        "method": "POST",
+        "path": "/api/v1/gpc/gran-quemado/soporte-nutricional",
+        "descripcion": "Calcula requerimientos calórico-proteicos y ruta de nutrición según GPC",
+        "request": {
+          "paciente_id": "string",
+          "peso_kg": "number",
+          "talla_cm": "number",
+          "edad_anios": "integer",
+          "scq_porcentaje": "number",
+          "dias_postquemadura": "integer",
+          "via_enteral_viable": "boolean",
+          "glucosa_actual_mg_dl": "number"
+        },
+        "response": {
+          "formula_utilizada": "Curreri: 25kcal/kg/día + 40kcal/%SCQ/día",
+          "requerimiento_calorico_kcal_dia": "number",
+          "requerimiento_proteico_g_dia": "number",
+          "ruta_preferida": {
+            "tipo": "string",
+            "justificacion": "string",
+            "inicio_recomendado_horas_postquemadura": 6
+          },
+          "control_glucemico": {
+            "meta_glucosa_mg_dl": { "min": 80, "max": 110 },
+            "protocolo_insulina": "string"
+          },
+          "suplementos_recomendados": ["string"],
+          "recomendacion_gpc": "string"
+        }
+      },
+
+      "criterios_referencia": {
+        "method": "POST",
+        "path": "/api/v1/gpc/gran-quemado/criterios-referencia",
+        "descripcion": "Evalúa si el paciente cumple criterios de referencia a unidad de quemados según GPC IMSS",
+        "request": {
+          "paciente_id": "string",
+          "edad_anios": "integer",
+          "scq_porcentaje": "number",
+          "profundidad_dominante": "string",
+          "localizaciones_especiales": ["string"],
+          "lesion_inhalacion": "boolean",
+          "quemadura_electrica_alta_tension": "boolean",
+          "quemadura_quimica": "boolean",
+          "politrauma_asociado": "boolean",
+          "comorbilidades_severas": "boolean"
+        },
+        "response": {
+          "referencia_unidad_quemados": "boolean",
+          "criterios_positivos": ["string"],
+          "nivel_urgencia": {
+            "type": "string",
+            "enum": ["inmediata", "urgente_menos_2h", "programada"]
+          },
+          "comunicacion_previa_requerida": "boolean",
+          "unidades_quemados_imss_referencia": [
+            "UMAE HT Dr. Victorio de la Fuente Narváez, CDMX",
+            "UMAE HTO No. 21, Monterrey NL",
+            "CMN de Occidente, Guadalajara"
+          ],
+          "recomendacion_gpc": "string"
+        }
+      },
+
+      "seguimiento": {
+        "method": "POST",
+        "path": "/api/v1/gpc/gran-quemado/seguimiento",
+        "descripcion": "Genera plan de seguimiento y métricas de evolución del paciente gran quemado",
+        "request": {
+          "paciente_id": "string",
+          "dia_hospitalizacion": "integer",
+          "scq_porcentaje": "number",
+          "profundidad": "string",
+          "injerto_realizado": "boolean",
+          "signos_vitales": {
+            "temperatura": "number",
+            "fc": "integer",
+            "fr": "integer",
+            "ta_sistolica": "integer"
+          },
+          "laboratorios": {
+            "albumina_g_dl": "number",
+            "proteinas_totales_g_dl": "number",
+            "leucocitos_por_ul": "number",
+            "pcr_mg_l": "number"
+          }
+        },
+        "response": {
+          "indicadores_evolucion": {
+            "riesgo_infeccion_score": "number",
+            "estado_nutricional": "string",
+            "pronostico_cicatrizacion_dias": "number"
+          },
+          "intervenciones_programadas": ["string"],
+          "alertas_activas": ["string"],
+          "meta_rehabilitacion": "string",
+          "proxima_evaluacion_dias": "integer"
+        }
+      }
+    },
+
+    "codigos_respuesta": {
+      "200": "Recomendación generada correctamente",
+      "400": "Parámetros clínicos inválidos o incompletos",
+      "404": "Paciente no encontrado",
+      "422": "Datos insuficientes para aplicar criterio GPC",
+      "500": "Error interno del servicio de decisión clínica"
+    },
+
+    "reglas_negocio_gpc": {
+      "definicion_gran_quemado": {
+        "descripcion": "Paciente cumple criterios de gran quemado si satisface al menos uno de los siguientes",
+        "criterios": [
+          "Adulto mayor de 65 años con SCQ >= 10% de 2° o 3° grado",
+          "Adulto < 65 años con SCQ >= 20% de 2° o 3° grado",
+          "Cualquier quemadura de 3° grado > 5% SCQ",
+          "Quemadura de vía aérea o por inhalación de humo",
+          "Quemadura eléctrica de alta tensión",
+          "Quemadura química grave",
+          "Quemaduras en áreas especiales: cara, manos, pies, genitales, periné, articulaciones mayores",
+          "Quemadura circunferencial de extremidades o tórax",
+          "Paciente pediátrico con SCQ >= 10% de 2° o 3° grado",
+          "Quemadura asociada a politraumatismo"
+        ]
+      },
+      "formula_parkland": "Volumen (ml) = 3 a 4 ml × peso (kg) × %SCQ. Primera mitad en primeras 8h desde el accidente, segunda mitad en 16h siguientes.",
+      "score_baux": "Índice pronóstico = Edad + %SCQ. Baux > 100: mortalidad elevada; > 140: pronóstico crítico.",
+      "escala_benaim": {
+        "tipo_A": "Quemadura superficial (1° grado): eritema, dolor, sin flictenas",
+        "tipo_AB_superficial": "2° grado superficial: flictenas, fondo rosado, doloroso, cura espontáneamente en 14 días",
+        "tipo_AB_profundo": "2° grado profundo: fondo blanquecino/rojo, menos doloroso, puede requerir injerto",
+        "tipo_B": "3° grado: indolora, aspecto coriáceo, requiere injerto si > 1 cm"
+      }
+    },
+
+    "integracion": {
+      "estandares": ["HL7 FHIR R4", "SNOMED-CT", "ICD-10-CM", "LOINC"],
+      "autenticacion": "OAuth 2.0 / Bearer Token",
+      "formato_respuesta": "application/json",
+      "versionamiento": "Header: X-GPC-Version",
+      "auditoria": "Cada llamada registra: timestamp, usuario, endpoint, hash_parametros en log de trazabilidad"
+    }
+  }
+}
